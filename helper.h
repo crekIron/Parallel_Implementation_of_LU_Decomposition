@@ -1,0 +1,9 @@
+//////////////////////////////////////////////////
+// This file will contain the helper functions
+// used for debugging the code and printing on
+// the terminal.
+//////////////////////////////////////////////////
+#ifndef HELPER_H
+#define HELPER_H
+
+#endif

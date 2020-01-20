@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     //Using array of pointers; access element by a[i][j] or *(*(a+row)+col)
     
     //Required: No of Rows = n
-    int n = 4;//cmay be also taken as a file input
+    int n = 4;//May be also taken as a file input
     double *a;
 
     double *pi;
@@ -95,13 +95,14 @@ int main(int argc, char const *argv[])
         pthread_create(&thread_handles[thread], NULL, Init_u, (void*)&ustr[thread]);
     }
 
+    //main for loop
+    for (int k = 0; k < n; k++)
+    {
+        double max=0;
 
-
-
-
-
-
-
+        
+    }
+    
 
     for (thread = 0; thread < thread_count; thread++)
     {
@@ -109,46 +110,46 @@ int main(int argc, char const *argv[])
         pthread_join(thread_handles[thread], NULL);
     }
 
-    //print a
-    printf("Printing a.......\n");
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            printf("%f ", a[i*n+j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-    //print pi
-    printf("Printing pi.......\n");
-    for (int i = 0; i < n; i++)
-    {
-        printf("%f ", pi[i]);
-    }
-    printf("\n\n");
-    //print l
-    printf("Printing l........\n");
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            printf("%f ", l[i*n+j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-    //print u;
-    printf("Printing u.......\n");
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            printf("%f ", u[i*n+j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
+    // //print a
+    // printf("Printing a.......\n");
+    // for (int i = 0; i < n; i++)
+    // {
+    //     for (int j = 0; j < n; j++)
+    //     {
+    //         printf("%f ", a[i*n+j]);
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
+    // //print pi
+    // printf("Printing pi.......\n");
+    // for (int i = 0; i < n; i++)
+    // {
+    //     printf("%f ", pi[i]);
+    // }
+    // printf("\n\n");
+    // //print l
+    // printf("Printing l........\n");
+    // for (int i = 0; i < n; i++)
+    // {
+    //     for (int j = 0; j < n; j++)
+    //     {
+    //         printf("%f ", l[i*n+j]);
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
+    // //print u;
+    // printf("Printing u.......\n");
+    // for (int i = 0; i < n; i++)
+    // {
+    //     for (int j = 0; j < n; j++)
+    //     {
+    //         printf("%f ", u[i*n+j]);
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
 
     //free all malloc
     free(thread_handles);

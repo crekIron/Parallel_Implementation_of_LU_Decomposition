@@ -42,6 +42,8 @@ int main(int argc, char const *argv[])
     //Initialisation of Arrays
     clock_t begin = clock();
     int n = 1000;
+    // printf("Size of the Matrix:");
+    // scanf("%d", &n);
     struct drand48_data drand_buf;
     double *a[n];
     double *pi;

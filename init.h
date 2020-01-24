@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <pthread.h>
-#include<stdio.h>
+#include <stdio.h>
 
 
 #include "global.h"
@@ -69,7 +69,7 @@ void* Init_pi(void* pi)
     return NULL;
 }
 
-void* Init_l(void* l)
+void* Init_u(void* l)
 {
     struct Mat_arg *l_args = (struct Mat_arg*) l;
     unsigned rank = (*l_args).rank;
@@ -80,7 +80,7 @@ void* Init_l(void* l)
     double x;
     struct drand48_data randBuffer;
     srand48_r(seedval, &randBuffer);
-
+    //division on the basis of the row
     for (int row=rank, i=0; row < size; row=rank+thread_count*(++i))
     {
         for (int col = 0; col < size; col++)
@@ -100,7 +100,7 @@ void* Init_l(void* l)
     }
     return NULL;
 }
-void* Init_u(void* u)
+void* Init_l(void* u)
 {
     struct Mat_arg *l_args = (struct Mat_arg*) u;
     unsigned int rank = (*l_args).rank;
@@ -111,14 +111,14 @@ void* Init_u(void* u)
     double x;
     struct drand48_data randBuffer;
     srand48_r(seedval, &randBuffer);
-
+    //division on the basis of the row
     for (int row=rank, i=0; row < size; row=rank+thread_count*(++i))
     {
         for (int col = 0; col < size; col++)
         {
             if(row==col)
             {
-                (*l_args).arr[row*size+col] = 0;
+                (*l_args).arr[row*size+col] = 1;
             }
             else if(row<col)
             {

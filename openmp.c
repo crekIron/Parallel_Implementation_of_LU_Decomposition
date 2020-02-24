@@ -50,10 +50,13 @@ int main(int argc, char const *argv[])
     
     //Variables for time calculation
     double start, end;
-    start = omp_get_wtime();
-
     int n = 8000;
-
+    printf("Size of the Matrix:");
+    scanf("%d", &n);
+    int thread=4;
+    printf("No of threads:");
+    scanf("%d", &thread);
+    start = omp_get_wtime();
     //Buffer for random number generator
     struct drand48_data drand_buf;
 
@@ -67,7 +70,7 @@ int main(int argc, char const *argv[])
     int seed = 0;
 
     //Setting the number of threads
-    omp_set_num_threads(2);
+    omp_set_num_threads(thread);
     
 
     //Memory Allocation for pi

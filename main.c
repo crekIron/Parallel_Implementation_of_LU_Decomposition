@@ -47,13 +47,13 @@ int main(int argc, char const *argv[])
 
     //Required: No of Rows = n
     n = 8000;//May be also taken as a file 
-    // printf("Size of the Matrix:");
-    // scanf("%d", &n);
+    printf("Size of the Matrix:");
+    scanf("%d", &n);
 
     //Num threads
-    long thread=8;
-    // printf("No of threads:");
-    // scanf("%ld", &thread);
+    thread_count=8;
+    printf("No of threads:");
+    scanf("%d", &thread_count);
 
     gettimeofday (&myTVstart, NULL);
     pthread_mutex_init(&lock, NULL);
@@ -74,10 +74,9 @@ int main(int argc, char const *argv[])
     //To start the seed from anywhere
     srand(time(0));
     long int seedval=rand();
-
+    long thread;
     pthread_t* thread_handles;
 
-    thread_count=2;
     thread_handles = malloc(thread_count*sizeof(pthread_t));
     
     //////Intialisation///////

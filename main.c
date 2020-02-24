@@ -4,6 +4,7 @@
 #include "algo.h"
 #include <time.h>
 #include <sys/time.h> 
+#include "math.h"
 void* Init_pi(void* pi);
 void* Init_l(void* l);
 void* Init_u(void* u);
@@ -11,6 +12,83 @@ void* genrateMat(void* a);
 void *swap(void *a);
 void *firstFor(void *forone);
 void *SecondFor(void *fortwo);
+
+void write_P_to_file(int* P_mat[]){
+
+    FILE *file;
+    file = fopen("P.txt", "wb");
+
+    for(int i=0;i<n;i++) {
+        for(int j=0;j<n;j++) {
+            fprintf(file,"%d ",P_mat[i][j]);
+        }
+        fprintf(file,"\n");
+    }
+    fclose(file);
+}
+
+void write_U_to_file(double* u_mat){
+
+    FILE *file;
+    file = fopen("U.txt", "wb");
+
+    for(int i=0;i<n;i++) {
+        for(int j=0;j<n;j++) {
+            fprintf(file,"%lf ",u_mat[i*n+j]);
+        }
+        fprintf(file,"\n");
+    }
+    fclose(file);
+}
+
+void write_L_to_file(double* l_mat){
+
+    FILE *file;
+    file = fopen("L.txt", "wb");
+
+    for(int i=0;i<n;i++) {
+        for(int j=0;j<n;j++) {
+            fprintf(file,"%lf ",l_mat[i*n+j]);
+        }
+        fprintf(file,"\n");
+    }
+    fclose(file);
+}
+
+void verification(int size, double* pi, double* mat_a, double* mat_l, double* mat_u){
+    double* result[size];
+    int* P_mat[size];     
+    double norm = 0;
+    double sum = 0;
+
+    //Generating P matrix
+    for(int i =0; i<size; i++){
+        P_mat[i] = (int*)malloc(size * sizeof(int));
+        result[i] = (double*) malloc(size * sizeof(double));
+        for(int j =0; j<size;j++){
+            if(j == pi[i])
+                P_mat[i][j] = 1;
+            else
+                P_mat[i][j] = 0;
+        }
+    }
+
+    //Computing PA-LU in result
+    for(int i=0 ;i<size; i++){
+        for(int j=0; j<size;j++){
+            result[j][i] = 0;
+            for(int k=0; k<size;k++){
+                result[j][i] += ((P_mat[j][k] * mat_a[k*n+i]) - (mat_l[j*n+k] * mat_u[k*n+i]));
+            }
+            sum += (result[j][i] * result[j][i]);
+        }
+        norm += sqrt(sum);
+    }
+    printf("The L(2,1) Norm of the residual matrix PA-LU is: %lf\n",norm );
+    write_P_to_file(P_mat);
+    write_U_to_file(mat_u);
+    write_L_to_file(mat_l);
+}
 
 typedef struct {
     int     secs;
@@ -46,14 +124,15 @@ int main(int argc, char const *argv[])
     struct timeval myTVstart, myTVend;
 
     //Required: No of Rows = n
-    n = 8000;//May be also taken as a file 
-    printf("Size of the Matrix:");
-    scanf("%d", &n);
+    // n = 8000;//May be also taken as a file 
+    // printf("Size of the Matrix:");
+    // scanf("%d", &n);
+    n = atoi(argv[2]);
 
     //Num threads
-    thread_count=8;
-    printf("No of threads:");
-    scanf("%d", &thread_count);
+    thread_count= atoi(argv[3]);;
+    // printf("No of threads:");
+    // scanf("%d", &thread_count);
 
     gettimeofday (&myTVstart, NULL);
     pthread_mutex_init(&lock, NULL);
@@ -70,6 +149,11 @@ int main(int argc, char const *argv[])
     double *pi;
     double *l;
     double *u;
+    long int matrixSize = n*n;
+    a = malloc((matrixSize)*sizeof(double*));
+    pi = malloc((n)*sizeof(double*));
+    l = malloc((matrixSize)*sizeof(double*));
+    u = malloc((matrixSize)*sizeof(double*));
 
     //To start the seed from anywhere
     srand(time(0));
@@ -79,31 +163,48 @@ int main(int argc, char const *argv[])
 
     thread_handles = malloc(thread_count*sizeof(pthread_t));
     
+
+
+    ///INput from file/////
+    FILE *file;
+    file = fopen(argv[1],"r");
+    double *a_copy;
+    a_copy = malloc((matrixSize)*sizeof(double*));
+    
+    //Memory allocation and Initialization of matrices.
+    //Parallelization with parallel for. Row-wise data partitioning
+    // #pragma omp parallel for private(j)
+    for(int i=0; i<n; i++){
+        pi[i] = i;
+        for(int j=0; j<n;j++){
+            fscanf(file, "%lf", &a[i*n+j]);
+            a_copy[i*n+j] = a[i*n+j];
+        }
+    }
     //////Intialisation///////
     //initialise a
     //randomly genrate an n*n matrix
-    long int matrixSize = n*n;
-    a = malloc((matrixSize)*sizeof(double*));
+    // a = malloc((matrixSize)*sizeof(double*));
 
-    struct Mat_arg mat[thread_count];
-    for (thread = 0; thread < thread_count; thread++)
-    {
-        mat[thread].rank=thread;
-        mat[thread].size=n;
-        mat[thread].arr=a;
-        mat[thread].seedval=seedval++;
-        // printf("thread %ld goes on....\n", thread);
-        pthread_create(&thread_handles[thread], NULL, genrateMat, (void*)&mat[thread]);
-    }
-    for (thread = 0; thread < thread_count; thread++)
-    {
-        pthread_join(thread_handles[thread], NULL);
-        // printf("thread %ld JOINED...\n", thread);
-    }
+    // struct Mat_arg mat[thread_count];
+    // for (thread = 0; thread < thread_count; thread++)
+    // {
+    //     mat[thread].rank=thread;
+    //     mat[thread].size=n;
+    //     mat[thread].arr=a;
+    //     mat[thread].seedval=seedval++;
+    //     // printf("thread %ld goes on....\n", thread);
+    //     pthread_create(&thread_handles[thread], NULL, genrateMat, (void*)&mat[thread]);
+    // }
+    // for (thread = 0; thread < thread_count; thread++)
+    // {
+    //     pthread_join(thread_handles[thread], NULL);
+    //     // printf("thread %ld JOINED...\n", thread);
+    // }
 
 
     //initialize pi
-    pi = malloc((n)*sizeof(double*));
+    // pi = malloc((n)*sizeof(double*));
 
     struct Arr_arg pistr[thread_count];
     for (thread = 0; thread < thread_count; thread++)
@@ -122,7 +223,7 @@ int main(int argc, char const *argv[])
 
 
     //initialize l
-    l = malloc((matrixSize)*sizeof(double*));
+    // l = malloc((matrixSize)*sizeof(double*));
 
     struct Mat_arg lstr[thread_count];
     for (thread = 0; thread < thread_count; thread++)
@@ -142,7 +243,7 @@ int main(int argc, char const *argv[])
 
 
     //initialize p
-    u = malloc((matrixSize)*sizeof(double*));
+    // u = malloc((matrixSize)*sizeof(double*));
 
     struct Mat_arg ustr[thread_count];
     for (thread = 0; thread < thread_count; thread++)
@@ -316,6 +417,7 @@ int main(int argc, char const *argv[])
     // }
     // printf("\n");
 
+    verification(n,pi,a_copy,l,u);
     //free all malloc
     free(a);
     free(pi);
